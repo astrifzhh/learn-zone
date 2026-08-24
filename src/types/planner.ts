@@ -12,6 +12,15 @@ export type UserSettings = Database['public']['Tables']['user_settings']['Row']
 
 export type MoodType = 'semangat' | 'lelah' | 'senang' | 'bingung'
 export type AlarmSound = 'school_bell' | 'cheerful' | 'nature'
+export interface NotificationItem {
+  id: string
+  kind: 'task' | 'goal' | 'schedule' | 'event' | 'mood'
+  title: string
+  message: string
+  dueDate: string
+  createdAt: string
+  read: boolean
+}
 export type BackgroundAudio = 'none' | 'instrumental' | 'soft_rain'
 export type EventType = 'exam' | 'assignment' | 'birthday' | 'holiday' | 'group' | 'other'
 
@@ -60,5 +69,6 @@ export const DAY_NAMES_ID_MAP: { [key: number]: string } = {
   2: 'Selasa',
   3: 'Rabu',
   4: 'Kamis',
-  5: 'Jumat'
+  5: 'Jumat',
+  6: 'Sabtu',
 }

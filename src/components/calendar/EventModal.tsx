@@ -140,7 +140,7 @@ export const EventModal: React.FC<EventModalProps> = ({
 
         <div className="lz-form-group">
           <label className="lz-label">Pilih Stiker Kalender</label>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
+          <div className="event-type-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
             {STICKER_PRESETS.map(s => {
               const isSelected = stickerKey === s.key
               return (

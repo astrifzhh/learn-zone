@@ -11,12 +11,15 @@ export const SchedulePage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingEntry, setEditingEntry] = useState<ScheduleEntry | null>(null)
   const [visibleDays, setVisibleDays] = useState<number[]>([1, 2, 3, 4, 5])
+  const [hiddenDays, setHiddenDays] = useState<number[]>([])
   const [selectedDay, setSelectedDay] = useState(1)
 
   useEffect(() => {
     const storedDays = schedule.map(entry => entry.day_of_week)
-    setVisibleDays(current => Array.from(new Set([...current, ...storedDays])).sort((a, b) => a - b))
-  }, [schedule])
+    setVisibleDays(current => Array.from(new Set([...current, ...storedDays]))
+      .filter(day => !hiddenDays.includes(day))
+      .sort((a, b) => a - b))
+  }, [schedule, hiddenDays])
 
   const handleAddForDay = (day: number) => {
     setSelectedDay(day)
@@ -27,6 +30,11 @@ export const SchedulePage: React.FC = () => {
   const handleEdit = (entry: ScheduleEntry) => {
     setEditingEntry(entry)
     setIsModalOpen(true)
+  }
+
+  const handleRemoveDay = (day: number) => {
+    setHiddenDays(current => [...current, day])
+    setVisibleDays(current => current.filter(item => item !== day))
   }
 
   const handleSave = async (data: {
@@ -58,7 +66,7 @@ export const SchedulePage: React.FC = () => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <h2 style={{ fontSize: '24px', fontWeight: 700 }}>Jadwal Pelajaran Mingguan</h2>
             <span className="lz-chip lz-chip-primary">
-              {visibleDays.length === 7 ? 'Senin – Minggu' : visibleDays.length === 6 ? 'Senin – Sabtu' : 'Senin – Jumat'}
+              {visibleDays.includes(6) ? 'Senin – Sabtu' : 'Senin – Jumat'}
             </span>
           </div>
           <p style={{ fontSize: '13px', color: 'var(--color-text-muted)', marginTop: '2px' }}>
@@ -68,9 +76,10 @@ export const SchedulePage: React.FC = () => {
 
         <button
           onClick={() => {
-            const nextDay = visibleDays.length + 1
-            if (nextDay <= 7) {
-              setVisibleDays(current => [...current, nextDay])
+            const nextDay = [1, 2, 3, 4, 5, 6].find(day => !visibleDays.includes(day))
+            if (nextDay) {
+              setHiddenDays(current => current.filter(day => day !== nextDay))
+              setVisibleDays(current => [...current, nextDay].sort((a, b) => a - b))
             }
           }}
           className="lz-btn lz-btn-primary"
@@ -87,6 +96,7 @@ export const SchedulePage: React.FC = () => {
         onAddForDay={handleAddForDay}
         onEdit={handleEdit}
         onDelete={deleteScheduleEntry}
+        onRemoveDay={handleRemoveDay}
       />
 
       <ScheduleModal

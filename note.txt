@@ -1,0 +1,13 @@
+Next Development:
+
+- Perbaiki responsive website pada tampilan HP (khususnya menu kalender, judul jangan ada yg overlap, hierarki menu dan tulisan)
+
+- Perbaiki notifikasi. notif hanya muncul ketika h-1 dan hari-h tugas/target/jadwal deadline. reminder harian mood. notifikasi yg sudah lewat hilangkan
+- Tambahkan page untuk lihat semua history notifikasi (yg sudah dilihat dan yg belum dilihat)
+- Pada menu focus, music background muncul lagi ketika pause-> start kembali waktu yg sedang berjalan
+
+Menu Jadwal pelajaran
+- Tidak perlu tambahkan isian hari ketika sudah klik tambah di card hari tertentu.
+- Tulisan jamnya adalah (contoh: 08.00)
+- Tambahkan judul hari sabtu pada card hari yg baru ditambahkan. bisa hapus card juga
+- Dimanapun menunya, ketika ada isian mata pelajaran, ketika pilih opsi "lainnya" maka user bisa ketik sendiri nama mapelnya (custom)

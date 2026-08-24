@@ -9,6 +9,7 @@ interface GoalModalProps {
     goal_text: string
     progress_percent: number
     semester_label: string
+    deadline_date: string | null
   }) => Promise<void>
   initialGoal?: SemesterGoal | null
 }
@@ -22,6 +23,7 @@ export const GoalModal: React.FC<GoalModalProps> = ({
   const [goalText, setGoalText] = useState('')
   const [progressPercent, setProgressPercent] = useState<number>(0)
   const [semesterLabel, setSemesterLabel] = useState('Semester Ganjil 2026/2027')
+  const [deadlineDate, setDeadlineDate] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
 
@@ -30,10 +32,12 @@ export const GoalModal: React.FC<GoalModalProps> = ({
       setGoalText(initialGoal.goal_text)
       setProgressPercent(initialGoal.progress_percent)
       setSemesterLabel(initialGoal.semester_label || 'Semester Ganjil 2026/2027')
+      setDeadlineDate(initialGoal.deadline_date || '')
     } else {
       setGoalText('')
       setProgressPercent(0)
       setSemesterLabel('Semester Ganjil 2026/2027')
+      setDeadlineDate('')
     }
     setError('')
   }, [initialGoal, isOpen])
@@ -53,6 +57,7 @@ export const GoalModal: React.FC<GoalModalProps> = ({
         goal_text: goalText.trim(),
         progress_percent: progressPercent,
         semester_label: semesterLabel.trim(),
+        deadline_date: deadlineDate || null,
       })
       onClose()
     } catch {
@@ -117,6 +122,11 @@ export const GoalModal: React.FC<GoalModalProps> = ({
             onChange={e => setProgressPercent(Number(e.target.value))}
             style={{ width: '100%', cursor: 'pointer' }}
           />
+        </div>
+
+        <div className="lz-form-group">
+          <label className="lz-label" htmlFor="goal-deadline">Deadline Target (Opsional)</label>
+          <input id="goal-deadline" type="date" value={deadlineDate} onChange={e => setDeadlineDate(e.target.value)} />
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px' }}>
