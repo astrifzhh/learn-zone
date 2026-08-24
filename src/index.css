@@ -451,12 +451,61 @@ input:focus, select:focus, textarea:focus {
   .header-illustration {
     display: none !important;
   }
-}
 
-@media (max-width: 1024px) {
+  .calendar-layout {
+    grid-template-columns: 1fr !important;
+  }
+
+  .calendar-toolbar {
+    align-items: flex-start !important;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .calendar-month-title {
+    min-width: 0;
+    flex-wrap: wrap;
+    gap: 6px !important;
+  }
+
+  .calendar-month-title h3 {
+    font-size: 18px !important;
+  }
+
+  .event-type-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
   .dashboard-primary-grid {
     grid-template-columns: 1fr !important;
   }
+
+  .dashboard-summary-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  .dashboard-summary-section {
+    border-left: none !important;
+    padding-left: 0 !important;
+  }
+
+  .dashboard-summary-card .lz-card-header {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+}
+
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .dashboard-primary-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .calendar-layout {
+    grid-template-columns: 1fr 280px !important;
+  }
+
 }
 
 

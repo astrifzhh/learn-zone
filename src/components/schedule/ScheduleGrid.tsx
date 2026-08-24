@@ -1,5 +1,5 @@
 import React from 'react'
-import { Plus, Edit2, Trash2, Clock } from 'lucide-react'
+import { Plus, Edit2, Trash2, Clock, X } from 'lucide-react'
 import type { ScheduleEntry } from '../../types/planner'
 import { DAY_NAMES_ID_MAP } from '../../types/planner'
 
@@ -9,6 +9,7 @@ interface ScheduleGridProps {
   onAddForDay: (day: number) => void
   onEdit: (entry: ScheduleEntry) => void
   onDelete: (id: string) => void
+  onRemoveDay: (day: number) => void
 }
 
 export const ScheduleGrid: React.FC<ScheduleGridProps> = ({
@@ -17,6 +18,7 @@ export const ScheduleGrid: React.FC<ScheduleGridProps> = ({
   onAddForDay,
   onEdit,
   onDelete,
+  onRemoveDay,
 }) => {
   return (
     <div
@@ -71,6 +73,15 @@ export const ScheduleGrid: React.FC<ScheduleGridProps> = ({
               >
                 <Plus size={14} />
                 <span>Tambah</span>
+              </button>
+              <button
+                onClick={() => onRemoveDay(day)}
+                className="lz-btn-ghost"
+                style={{ padding: '4px', color: 'var(--color-action)' }}
+                title={`Hapus card ${dayName}`}
+                aria-label={`Hapus card ${dayName}`}
+              >
+                <X size={14} />
               </button>
             </div>
 
@@ -156,7 +167,7 @@ export const ScheduleGrid: React.FC<ScheduleGridProps> = ({
                       >
                         <Clock size={11} />
                         <span>
-                          {item.start_time} - {item.end_time || 'Selesai'}
+                          {item.start_time.replace(':', '.')} - {item.end_time ? item.end_time.replace(':', '.') : 'Selesai'}
                         </span>
                       </div>
                     </div>

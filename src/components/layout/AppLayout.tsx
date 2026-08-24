@@ -4,7 +4,7 @@ import type { NavTab } from './Sidebar'
 import { SettingsModal } from '../profile/SettingsModal'
 import { Toast } from '../ui/Toast'
 import { usePlanner } from '../../context/PlannerContext'
-import { LayoutDashboard, CheckSquare, CalendarDays, Calendar, Target, Timer, Settings } from 'lucide-react'
+import { LayoutDashboard, CheckSquare, CalendarDays, Calendar, Target, Timer, Settings, Bell } from 'lucide-react'
 
 interface AppLayoutProps {
   activeTab: NavTab
@@ -29,6 +29,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
     { id: 'calendar', label: 'Kalender', icon: <Calendar size={18} /> },
     { id: 'goals', label: 'Target', icon: <Target size={18} /> },
     { id: 'focus-mood', label: 'Fokus', icon: <Timer size={18} /> },
+    { id: 'notifications', label: 'Notif', icon: <Bell size={18} /> },
   ]
 
   return (

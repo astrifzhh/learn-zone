@@ -57,11 +57,12 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
   const selectedEvents = events.filter(e => e.event_date === selectedDateStr)
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '20px' }}>
+    <div className="calendar-layout" style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '20px' }}>
       {/* Calendar Grid Left */}
       <div className="lz-card" style={{ padding: '24px' }}>
         {/* Navigation Bar */}
         <div
+          className="calendar-toolbar"
           style={{
             display: 'flex',
             alignItems: 'center',
@@ -69,7 +70,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
             marginBottom: '20px',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div className="calendar-month-title" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <h3 style={{ fontSize: '20px', fontWeight: 700 }}>
               {monthNames[month]} {year}
             </h3>

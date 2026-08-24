@@ -42,6 +42,7 @@ export const CalendarPage: React.FC = () => {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       {/* Header */}
       <div
+        className="page-header"
         style={{
           display: 'flex',
           alignItems: 'center',

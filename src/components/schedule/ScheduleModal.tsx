@@ -136,7 +136,7 @@ export const ScheduleModal: React.FC<ScheduleModalProps> = ({
       title={initialEntry ? 'Edit Jadwal Pelajaran' : 'Tambah Jadwal Pelajaran'}
     >
       <form onSubmit={handleSubmit}>
-        <div className="lz-form-group">
+        <div className="lz-form-group" style={{ display: initialEntry ? undefined : 'none' }}>
           <label className="lz-label" htmlFor="sched-day">
             Hari
           </label>

@@ -77,6 +77,7 @@ export const FocusTimerExtended: React.FC = () => {
       setIsRunning(true)
     } else {
       setIsRunning(false)
+      audioService.pauseBackgroundAudio()
     }
   }
 

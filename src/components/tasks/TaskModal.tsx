@@ -54,6 +54,10 @@ export const TaskModal: React.FC<TaskModalProps> = ({
   }, [initialTask, isOpen])
 
   const handleSubjectChange = (name: string) => {
+    if (name === 'Lainnya') {
+      setSubjectName('')
+      return
+    }
     setSubjectName(name)
     const preset = SUBJECT_PRESETS.find(p => p.name === name)
     if (preset) setSubjectColor(preset.color)
@@ -127,8 +131,16 @@ export const TaskModal: React.FC<TaskModalProps> = ({
                 {subj.name}
               </option>
             ))}
+            <option value="Lainnya">Lainnya</option>
           </select>
         </div>
+
+        {(!SUBJECT_PRESETS.some(subject => subject.name === subjectName) || subjectName === '') && (
+          <div className="lz-form-group">
+            <label className="lz-label" htmlFor="task-custom-subject">Nama Mata Pelajaran</label>
+            <input id="task-custom-subject" type="text" value={subjectName} onChange={e => setSubjectName(e.target.value)} placeholder="Contoh: Bahasa Daerah" maxLength={80} required />
+          </div>
+        )}
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
           <div className="lz-form-group">

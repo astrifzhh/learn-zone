@@ -36,7 +36,7 @@ export const DailySummaryCard: React.FC<DailySummaryCardProps> = ({ onNavigate }
   ]
 
   return (
-    <div className="lz-card" style={{ padding: '24px' }}>
+    <div className="lz-card dashboard-summary-card" style={{ padding: '24px' }}>
       <div className="lz-card-header" style={{ marginBottom: '18px' }}>
         <h3 className="lz-card-title">Ringkasan Hari Ini</h3>
         <span style={{ fontSize: '13px', color: 'var(--color-text-muted)', fontWeight: 600 }}>
@@ -46,6 +46,7 @@ export const DailySummaryCard: React.FC<DailySummaryCardProps> = ({ onNavigate }
 
       {/* 3 Unified Columns with subtle vertical separators */}
       <div
+        className="dashboard-summary-grid"
         style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
@@ -130,7 +131,7 @@ export const DailySummaryCard: React.FC<DailySummaryCardProps> = ({ onNavigate }
         </div>
 
         {/* Section 2: Target Semester */}
-        <div
+        <div className="dashboard-summary-section"
           style={{
             display: 'flex',
             flexDirection: 'column',
@@ -258,7 +259,7 @@ export const DailySummaryCard: React.FC<DailySummaryCardProps> = ({ onNavigate }
         </div>
 
         {/* Section 3: Mood & Motivasi Hari Ini */}
-        <div
+        <div className="dashboard-summary-section"
           style={{
             display: 'flex',
             flexDirection: 'column',
@@ -266,7 +267,7 @@ export const DailySummaryCard: React.FC<DailySummaryCardProps> = ({ onNavigate }
             paddingLeft: '24px',
           }}
         >
-          <div
+          <div className="dashboard-summary-section"
             style={{
               display: 'flex',
               alignItems: 'center',

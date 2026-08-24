@@ -12,6 +12,7 @@ import { GoalsPage } from './pages/GoalsPage'
 import { FocusMoodPage } from './pages/FocusMoodPage'
 import { AdminPage } from './pages/AdminPage'
 import { AuthPage } from './pages/AuthPage'
+import { NotificationHistoryPage } from './pages/NotificationHistoryPage'
 
 const MainAppContent: React.FC = () => {
   const { user, isAdmin } = useAuth()
@@ -44,6 +45,7 @@ const MainAppContent: React.FC = () => {
       {activeTab === 'calendar' && <CalendarPage />}
       {activeTab === 'goals' && <GoalsPage />}
       {activeTab === 'focus-mood' && <FocusMoodPage />}
+      {activeTab === 'notifications' && <NotificationHistoryPage />}
     </AppLayout>
   )
 }

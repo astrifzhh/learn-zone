@@ -11,8 +11,10 @@ import type {
   FocusSession,
   UserSettings,
   MoodType,
+  NotificationItem,
 } from '../types/planner'
 import { getRecommendedQuote } from '../lib/quotes'
+import { buildActiveNotifications } from '../lib/notifications'
 import { audioService } from '../lib/audio'
 import { triggerTaskStarConfetti, triggerGoalUnlockConfetti } from '../lib/confetti'
 
@@ -25,6 +27,10 @@ interface PlannerContextType {
   customQuotes: CustomQuote[]
   focusSessions: FocusSession[]
   settings: UserSettings
+  notifications: NotificationItem[]
+  notificationHistory: NotificationItem[]
+  markNotificationRead: (id: string) => void
+  markAllNotificationsRead: () => void
   isLoadingData: boolean
   
   addTask: (task: Omit<Task, 'id' | 'user_id' | 'created_at' | 'updated_at' | 'completed_at'>) => Promise<void>
@@ -116,6 +122,7 @@ const SEED_GOALS: Omit<SemesterGoal, 'user_id'>[] = [
     progress_percent: 75,
     badge_awarded: false,
     semester_label: 'Semester Ganjil 2026/2027',
+    deadline_date: null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   },
@@ -125,6 +132,7 @@ const SEED_GOALS: Omit<SemesterGoal, 'user_id'>[] = [
     progress_percent: 100,
     badge_awarded: true,
     semester_label: 'Semester Ganjil 2026/2027',
+    deadline_date: null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   },
@@ -134,6 +142,7 @@ const SEED_GOALS: Omit<SemesterGoal, 'user_id'>[] = [
     progress_percent: 40,
     badge_awarded: false,
     semester_label: 'Semester Ganjil 2026/2027',
+    deadline_date: null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   },
@@ -200,6 +209,7 @@ export const PlannerProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [focusSessions, setFocusSessions] = useState<FocusSession[]>([])
   const [settings, setSettings] = useState<UserSettings>(DEFAULT_SETTINGS)
   const [isLoadingData, setIsLoadingData] = useState<boolean>(true)
+  const [notificationHistory, setNotificationHistory] = useState<NotificationItem[]>([])
 
   const [toastMessage, setToastMessage] = useState<string | null>(null)
   const [toastType, setToastType] = useState<'success' | 'error' | 'info' | null>(null)
@@ -218,6 +228,41 @@ export const PlannerProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setToastType(null)
   }, [])
 
+  const notifications = buildActiveNotifications(tasks, goals, schedule, events, Boolean(currentMood)).map(notification => ({
+    ...notification,
+    read: notificationHistory.find(item => item.id === notification.id)?.read ?? false,
+  }))
+
+  useEffect(() => {
+    if (!user || isLoadingData) return
+    const previous = new Map(notificationHistory.map(item => [item.id, item]))
+    const merged = [...notificationHistory]
+    notifications.forEach(notification => {
+      const existing = previous.get(notification.id)
+      if (!existing) merged.unshift(notification)
+    })
+    if (merged.length !== notificationHistory.length) {
+      setNotificationHistory(merged)
+      localStorage.setItem(`lz_notifications_${user.id}`, JSON.stringify(merged))
+    }
+  }, [events, goals, isLoadingData, notificationHistory, schedule, tasks, currentMood, user, notifications])
+
+  const markNotificationRead = useCallback((id: string) => {
+    setNotificationHistory(previous => {
+      const updated = previous.map(item => item.id === id ? { ...item, read: true } : item)
+      if (user) localStorage.setItem(`lz_notifications_${user.id}`, JSON.stringify(updated))
+      return updated
+    })
+  }, [user])
+
+  const markAllNotificationsRead = useCallback(() => {
+    setNotificationHistory(previous => {
+      const updated = previous.map(item => ({ ...item, read: true }))
+      if (user) localStorage.setItem(`lz_notifications_${user.id}`, JSON.stringify(updated))
+      return updated
+    })
+  }, [user])
+
   useEffect(() => {
     if (!user) {
       setTasks([])
@@ -227,6 +272,7 @@ export const PlannerProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setCurrentMood(null)
       setCustomQuotes([])
       setFocusSessions([])
+      setNotificationHistory([])
       setIsLoadingData(false)
       return
     }
@@ -243,23 +289,17 @@ export const PlannerProvider: React.FC<{ children: React.ReactNode }> = ({ child
         const storedQuotes = localStorage.getItem(`lz_quotes_${user.id}`)
         const storedSessions = localStorage.getItem(`lz_sessions_${user.id}`)
         const storedSettings = localStorage.getItem(`lz_settings_${user.id}`)
+        const storedNotifications = localStorage.getItem(`lz_notifications_${user.id}`)
 
         setTasks(storedTasks ? JSON.parse(storedTasks) : SEED_TASKS.map(t => ({ ...t, user_id: user.id } as Task)))
         setGoals(storedGoals ? JSON.parse(storedGoals) : SEED_GOALS.map(g => ({ ...g, user_id: user.id } as SemesterGoal)))
         setSchedule(storedSchedule ? JSON.parse(storedSchedule) : SEED_SCHEDULE.map(s => ({ ...s, user_id: user.id } as ScheduleEntry)))
         setEvents(storedEvents ? JSON.parse(storedEvents) : SEED_EVENTS.map(e => ({ ...e, user_id: user.id } as CalendarEvent)))
-        setCurrentMood(storedMood ? JSON.parse(storedMood) : {
-          id: 'mood-today',
-          user_id: user.id,
-          entry_date: todayStr,
-          mood: 'semangat',
-          recommended_quote: getRecommendedQuote('semangat'),
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        })
+        setCurrentMood(storedMood ? JSON.parse(storedMood) : null)
         setCustomQuotes(storedQuotes ? JSON.parse(storedQuotes) : [])
         setFocusSessions(storedSessions ? JSON.parse(storedSessions) : [])
         setSettings(storedSettings ? JSON.parse(storedSettings) : { ...DEFAULT_SETTINGS, user_id: user.id })
+        setNotificationHistory(storedNotifications ? JSON.parse(storedNotifications) : [])
 
         setIsLoadingData(false)
         return
@@ -305,6 +345,8 @@ export const PlannerProvider: React.FC<{ children: React.ReactNode }> = ({ child
           if (storedQuotes) setCustomQuotes(JSON.parse(storedQuotes))
           if (storedSessions) setFocusSessions(JSON.parse(storedSessions))
           if (storedSettings) setSettings(JSON.parse(storedSettings))
+          const storedNotifications = localStorage.getItem(`lz_notifications_${user.id}`)
+          if (storedNotifications) setNotificationHistory(JSON.parse(storedNotifications))
           showToast('Server tidak dapat diakses. Data lokal tetap digunakan.', 'info')
           setIsLoadingData(false)
           return
@@ -491,6 +533,7 @@ export const PlannerProvider: React.FC<{ children: React.ReactNode }> = ({ child
           goal_text: goalData.goal_text,
           progress_percent: newGoal.progress_percent,
           semester_label: newGoal.semester_label,
+          deadline_date: newGoal.deadline_date,
         })
         .select()
         .single()
@@ -956,6 +999,10 @@ export const PlannerProvider: React.FC<{ children: React.ReactNode }> = ({ child
         customQuotes,
         focusSessions,
         settings,
+        notifications,
+        notificationHistory,
+        markNotificationRead,
+        markAllNotificationsRead,
         isLoadingData,
         addTask,
         updateTask,

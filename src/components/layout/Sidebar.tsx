@@ -10,10 +10,11 @@ import {
   LogOut,
   Sparkles,
   ShieldCheck,
+  Bell,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 
-export type NavTab = 'dashboard' | 'tasks' | 'schedule' | 'calendar' | 'goals' | 'focus-mood'
+export type NavTab = 'dashboard' | 'tasks' | 'schedule' | 'calendar' | 'goals' | 'focus-mood' | 'notifications'
 
 interface SidebarProps {
   activeTab: NavTab
@@ -37,6 +38,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'calendar', label: 'Kalender', icon: <Calendar size={20} /> },
     { id: 'goals', label: 'Target Semester', icon: <Target size={20} /> },
     { id: 'focus-mood', label: 'Fokus & Mood', icon: <Timer size={20} /> },
+    { id: 'notifications', label: 'Riwayat Notifikasi', icon: <Bell size={20} /> },
   ]
 
   return (

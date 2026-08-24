@@ -6,6 +6,7 @@ class SoundEngine {
   private ambientGain: GainNode | null = null
   private isAmbientPlaying = false
   private currentAmbientType: string = 'none'
+  private isAmbientPaused = false
 
   private getContext(): AudioContext {
     if (!this.ctx) {
@@ -174,6 +175,7 @@ class SoundEngine {
     }
 
     if (this.isAmbientPlaying && this.currentAmbientType === type) {
+      if (this.isAmbientPaused) this.resumeBackgroundAudio()
       return
     }
 
@@ -183,6 +185,7 @@ class SoundEngine {
       const ctx = this.getContext()
       this.currentAmbientType = type
       this.isAmbientPlaying = true
+      this.isAmbientPaused = false
 
       if (type === 'soft_rain') {
         const bufferSize = 2 * ctx.sampleRate
@@ -274,7 +277,23 @@ class SoundEngine {
       this.ambientGain = null
     }
     this.isAmbientPlaying = false
+    this.isAmbientPaused = false
     this.currentAmbientType = 'none'
+  }
+
+  pauseBackgroundAudio() {
+    if (!this.ambientGain || !this.isAmbientPlaying || this.isAmbientPaused) return
+    this.ambientGain.gain.cancelScheduledValues(0)
+    this.ambientGain.gain.setTargetAtTime(0, this.getContext().currentTime, 0.03)
+    this.isAmbientPaused = true
+  }
+
+  resumeBackgroundAudio() {
+    if (!this.ambientGain || !this.isAmbientPlaying || !this.isAmbientPaused) return
+    const volume = this.currentAmbientType === 'soft_rain' ? 0.08 : 0.04
+    this.ambientGain.gain.cancelScheduledValues(0)
+    this.ambientGain.gain.setTargetAtTime(volume, this.getContext().currentTime, 0.03)
+    this.isAmbientPaused = false
   }
 }
 

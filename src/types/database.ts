@@ -210,6 +210,7 @@ export type Database = {
         Row: {
           badge_awarded: boolean | null
           created_at: string
+          deadline_date: string | null
           goal_text: string
           id: string
           progress_percent: number
@@ -220,6 +221,7 @@ export type Database = {
         Insert: {
           badge_awarded?: boolean | null
           created_at?: string
+          deadline_date?: string | null
           goal_text: string
           id?: string
           progress_percent?: number
@@ -230,6 +232,7 @@ export type Database = {
         Update: {
           badge_awarded?: boolean | null
           created_at?: string
+          deadline_date?: string | null
           goal_text?: string
           id?: string
           progress_percent?: number
@@ -253,6 +256,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          deadline_date?: string | null
           completed_at?: string | null
           created_at?: string
           due_at?: string | null

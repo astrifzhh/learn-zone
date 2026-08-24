@@ -27,6 +27,7 @@ export const GoalsPage: React.FC = () => {
     goal_text: string
     progress_percent: number
     semester_label: string
+    deadline_date: string | null
   }) => {
     if (editingGoal) {
       await updateGoal(editingGoal.id, data)
