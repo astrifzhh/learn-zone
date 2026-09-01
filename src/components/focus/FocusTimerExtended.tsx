@@ -8,10 +8,7 @@ import type { AlarmSound, BackgroundAudio } from '../../types/planner'
 export const FocusTimerExtended: React.FC = () => {
   const { settings, updateSettings } = usePlanner()
   const {
-    focusDuration,
-    breakDuration,
     phase,
-    timeLeft,
     isRunning,
     progressPercent,
     minutes,

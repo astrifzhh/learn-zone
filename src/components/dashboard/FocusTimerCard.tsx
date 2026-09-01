@@ -11,7 +11,6 @@ export const FocusTimerCard: React.FC = () => {
     focusDuration,
     breakDuration,
     phase,
-    timeLeft,
     isRunning,
     progressPercent,
     minutes,
