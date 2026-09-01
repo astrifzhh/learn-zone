@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Modal } from '../ui/Modal'
-import { SUBJECT_PRESETS } from '../../types/planner'
+import { SUBJECT_PRESETS, DEFAULT_CUSTOM_SUBJECT_COLOR } from '../../types/planner'
 import type { Task } from '../../types/planner'
 
 interface TaskModalProps {
@@ -23,7 +23,8 @@ export const TaskModal: React.FC<TaskModalProps> = ({
   initialTask,
 }) => {
   const [title, setTitle] = useState('')
-  const [subjectName, setSubjectName] = useState(SUBJECT_PRESETS[0].name)
+  const [subjectSelect, setSubjectSelect] = useState<string>(SUBJECT_PRESETS[0].name)
+  const [customSubject, setCustomSubject] = useState('')
   const [subjectColor, setSubjectColor] = useState(SUBJECT_PRESETS[0].color)
   const [dueDate, setDueDate] = useState('')
   const [dueTime, setDueTime] = useState('16:00')
@@ -33,8 +34,21 @@ export const TaskModal: React.FC<TaskModalProps> = ({
   useEffect(() => {
     if (initialTask) {
       setTitle(initialTask.title)
-      setSubjectName(initialTask.subject_name || SUBJECT_PRESETS[0].name)
-      setSubjectColor(initialTask.subject_color || SUBJECT_PRESETS[0].color)
+      const existingSubj = (initialTask.subject_name || '').trim()
+      const matchedPreset = SUBJECT_PRESETS.find(
+        p => p.name.toLowerCase() === existingSubj.toLowerCase()
+      )
+
+      if (matchedPreset) {
+        setSubjectSelect(matchedPreset.name)
+        setCustomSubject('')
+        setSubjectColor(initialTask.subject_color || matchedPreset.color)
+      } else {
+        setSubjectSelect('Lainnya')
+        setCustomSubject(existingSubj)
+        setSubjectColor(initialTask.subject_color || DEFAULT_CUSTOM_SUBJECT_COLOR)
+      }
+
       if (initialTask.due_at) {
         const d = new Date(initialTask.due_at)
         setDueDate(d.toISOString().split('T')[0])
@@ -45,7 +59,8 @@ export const TaskModal: React.FC<TaskModalProps> = ({
       }
     } else {
       setTitle('')
-      setSubjectName(SUBJECT_PRESETS[0].name)
+      setSubjectSelect(SUBJECT_PRESETS[0].name)
+      setCustomSubject('')
       setSubjectColor(SUBJECT_PRESETS[0].color)
       setDueDate(new Date().toISOString().split('T')[0])
       setDueTime('16:00')
@@ -53,14 +68,14 @@ export const TaskModal: React.FC<TaskModalProps> = ({
     setError('')
   }, [initialTask, isOpen])
 
-  const handleSubjectChange = (name: string) => {
-    if (name === 'Lainnya') {
-      setSubjectName('')
-      return
+  const handleSubjectSelectChange = (val: string) => {
+    setSubjectSelect(val)
+    if (val === 'Lainnya') {
+      setSubjectColor(DEFAULT_CUSTOM_SUBJECT_COLOR)
+    } else {
+      const preset = SUBJECT_PRESETS.find(p => p.name === val)
+      if (preset) setSubjectColor(preset.color)
     }
-    setSubjectName(name)
-    const preset = SUBJECT_PRESETS.find(p => p.name === name)
-    if (preset) setSubjectColor(preset.color)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -69,6 +84,17 @@ export const TaskModal: React.FC<TaskModalProps> = ({
       setError('Judul tugas wajib diisi')
       return
     }
+
+    const finalSubjectName = subjectSelect === 'Lainnya' ? customSubject.trim() : subjectSelect
+    if (!finalSubjectName) {
+      setError('Nama mata pelajaran wajib diisi')
+      return
+    }
+
+    const matched = SUBJECT_PRESETS.find(
+      p => p.name.toLowerCase() === finalSubjectName.toLowerCase()
+    )
+    const finalColor = matched ? matched.color : subjectColor || DEFAULT_CUSTOM_SUBJECT_COLOR
 
     setIsSubmitting(true)
     setError('')
@@ -81,8 +107,8 @@ export const TaskModal: React.FC<TaskModalProps> = ({
     try {
       await onSave({
         title: title.trim(),
-        subject_name: subjectName,
-        subject_color: subjectColor,
+        subject_name: matched ? matched.name : finalSubjectName,
+        subject_color: finalColor,
         due_at: fullDueAt,
         is_completed: initialTask ? initialTask.is_completed : false,
       })
@@ -123,22 +149,33 @@ export const TaskModal: React.FC<TaskModalProps> = ({
           </label>
           <select
             id="task-subject"
-            value={subjectName}
-            onChange={e => handleSubjectChange(e.target.value)}
+            value={subjectSelect}
+            onChange={e => handleSubjectSelectChange(e.target.value)}
           >
             {SUBJECT_PRESETS.map(subj => (
               <option key={subj.name} value={subj.name}>
                 {subj.name}
               </option>
             ))}
-            <option value="Lainnya">Lainnya</option>
+            <option value="Lainnya">Lainnya (Ketik Sendiri)</option>
           </select>
         </div>
 
-        {(!SUBJECT_PRESETS.some(subject => subject.name === subjectName) || subjectName === '') && (
+        {subjectSelect === 'Lainnya' && (
           <div className="lz-form-group">
-            <label className="lz-label" htmlFor="task-custom-subject">Nama Mata Pelajaran</label>
-            <input id="task-custom-subject" type="text" value={subjectName} onChange={e => setSubjectName(e.target.value)} placeholder="Contoh: Bahasa Daerah" maxLength={80} required />
+            <label className="lz-label" htmlFor="task-custom-subject">
+              Nama Mata Pelajaran Kustom <span style={{ color: 'var(--color-action)' }}>*</span>
+            </label>
+            <input
+              id="task-custom-subject"
+              type="text"
+              value={customSubject}
+              onChange={e => setCustomSubject(e.target.value)}
+              placeholder="Contoh: Robotika, Bahasa Mandarin, dsb."
+              maxLength={80}
+              required
+              autoFocus
+            />
           </div>
         )}
 

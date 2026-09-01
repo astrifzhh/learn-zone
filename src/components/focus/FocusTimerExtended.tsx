@@ -1,120 +1,28 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import React, { useState } from 'react'
 import { Play, Pause, RotateCcw, SkipForward, Sliders } from 'lucide-react'
 import { usePlanner } from '../../context/PlannerContext'
+import { useFocusTimer } from '../../context/FocusTimerContext'
 import { audioService } from '../../lib/audio'
 import type { AlarmSound, BackgroundAudio } from '../../types/planner'
 
 export const FocusTimerExtended: React.FC = () => {
-  const { settings, updateSettings, logFocusSession } = usePlanner()
+  const { settings, updateSettings } = usePlanner()
+  const {
+    focusDuration,
+    breakDuration,
+    phase,
+    timeLeft,
+    isRunning,
+    progressPercent,
+    minutes,
+    seconds,
+    togglePlay,
+    handleReset,
+    handleSkip,
+    applyCustomDurations,
+  } = useFocusTimer()
 
-  const [focusDuration, setFocusDuration] = useState<number>(25)
-  const [breakDuration, setBreakDuration] = useState<number>(5)
-  const [phase, setPhase] = useState<'focus' | 'break'>('focus')
-  const [timeLeft, setTimeLeft] = useState<number>(25 * 60)
-  const [isRunning, setIsRunning] = useState<boolean>(false)
-  const [sessionStartTime, setSessionStartTime] = useState<string | null>(null)
   const [showConfig, setShowConfig] = useState<boolean>(false)
-
-  const timerRef = useRef<number | null>(null)
-
-  const totalDuration = (phase === 'focus' ? focusDuration : breakDuration) * 60
-  const progressPercent = ((totalDuration - timeLeft) / totalDuration) * 100
-
-  const minutes = Math.floor(timeLeft / 60).toString().padStart(2, '0')
-  const seconds = (timeLeft % 60).toString().padStart(2, '0')
-
-  const handlePhaseComplete = useCallback(() => {
-    audioService.playAlarm(settings.alarm_sound as AlarmSound, settings.sound_enabled)
-
-    if (phase === 'focus') {
-      if (sessionStartTime) {
-        logFocusSession({
-          focus_minutes: focusDuration,
-          break_minutes: breakDuration,
-          started_at: sessionStartTime,
-          ended_at: new Date().toISOString(),
-          status: 'completed',
-        })
-      }
-      setPhase('break')
-      setTimeLeft(breakDuration * 60)
-    } else {
-      setPhase('focus')
-      setTimeLeft(focusDuration * 60)
-    }
-    setIsRunning(false)
-    setSessionStartTime(null)
-  }, [breakDuration, focusDuration, logFocusSession, phase, sessionStartTime, settings.alarm_sound, settings.sound_enabled])
-
-  useEffect(() => {
-    if (isRunning) {
-      timerRef.current = window.setInterval(() => {
-        setTimeLeft(prev => {
-          if (prev <= 1) {
-            handlePhaseComplete()
-            return 0
-          }
-          return prev - 1
-        })
-      }, 1000)
-    } else if (timerRef.current) {
-      clearInterval(timerRef.current)
-    }
-
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current)
-    }
-  }, [isRunning, handlePhaseComplete])
-
-  const togglePlay = () => {
-    if (!isRunning) {
-      if (!sessionStartTime) {
-        setSessionStartTime(new Date().toISOString())
-      }
-      if (settings.background_audio !== 'none') {
-        audioService.startBackgroundAudio(settings.background_audio as BackgroundAudio, settings.sound_enabled)
-      }
-      setIsRunning(true)
-    } else {
-      setIsRunning(false)
-      audioService.pauseBackgroundAudio()
-    }
-  }
-
-  const handleReset = () => {
-    if (isRunning && sessionStartTime && phase === 'focus') {
-      logFocusSession({
-        focus_minutes: focusDuration,
-        break_minutes: breakDuration,
-        started_at: sessionStartTime,
-        ended_at: new Date().toISOString(),
-        status: 'cancelled',
-      })
-    }
-    setIsRunning(false)
-    setSessionStartTime(null)
-    setTimeLeft((phase === 'focus' ? focusDuration : breakDuration) * 60)
-    audioService.stopBackgroundAudio()
-  }
-
-  const handleSkip = () => {
-    handleReset()
-    if (phase === 'focus') {
-      setPhase('break')
-      setTimeLeft(breakDuration * 60)
-    } else {
-      setPhase('focus')
-      setTimeLeft(focusDuration * 60)
-    }
-  }
-
-  const applyCustomDurations = (focusMins: number, breakMins: number) => {
-    setFocusDuration(focusMins)
-    setBreakDuration(breakMins)
-    setIsRunning(false)
-    setPhase('focus')
-    setTimeLeft(focusMins * 60)
-  }
 
   const strokeWidth = 10
   const radius = 95

@@ -17,6 +17,20 @@ export const TasksPage: React.FC = () => {
 
   const todayStr = new Date().toISOString().split('T')[0]
 
+  const availableSubjects = useMemo(() => {
+    const list: string[] = []
+    SUBJECT_PRESETS.forEach(p => {
+      if (!list.includes(p.name)) list.push(p.name)
+    })
+    tasks.forEach(t => {
+      const name = t.subject_name?.trim()
+      if (name && !list.some(item => item.toLowerCase() === name.toLowerCase())) {
+        list.push(name)
+      }
+    })
+    return list
+  }, [tasks])
+
   const filteredTasks = useMemo(() => {
     return tasks.filter(task => {
       // Search
@@ -25,7 +39,7 @@ export const TasksPage: React.FC = () => {
       }
 
       // Subject Filter
-      if (selectedSubject !== 'all' && task.subject_name !== selectedSubject) {
+      if (selectedSubject !== 'all' && (task.subject_name || '').toLowerCase() !== selectedSubject.toLowerCase()) {
         return false
       }
 
@@ -152,9 +166,9 @@ export const TasksPage: React.FC = () => {
             style={{ height: '36px', fontSize: '12px', width: 'auto' }}
           >
             <option value="all">Semua Mata Pelajaran</option>
-            {SUBJECT_PRESETS.map(s => (
-              <option key={s.name} value={s.name}>
-                {s.name}
+            {availableSubjects.map(name => (
+              <option key={name} value={name}>
+                {name}
               </option>
             ))}
           </select>

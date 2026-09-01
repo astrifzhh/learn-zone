@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Modal } from '../ui/Modal'
-import { SUBJECT_PRESETS, DAY_NAMES_ID_MAP } from '../../types/planner'
+import { SUBJECT_PRESETS, DEFAULT_CUSTOM_SUBJECT_COLOR, DAY_NAMES_ID_MAP } from '../../types/planner'
 import type { ScheduleEntry } from '../../types/planner'
 
 interface ScheduleModalProps {
@@ -29,7 +29,8 @@ export const ScheduleModal: React.FC<ScheduleModalProps> = ({
   const [dayOfWeek, setDayOfWeek] = useState<number>(defaultDay)
   const [startTime, setStartTime] = useState('07:30')
   const [endTime, setEndTime] = useState('09:00')
-  const [subjectName, setSubjectName] = useState(SUBJECT_PRESETS[0].name)
+  const [subjectSelect, setSubjectSelect] = useState<string>(SUBJECT_PRESETS[0].name)
+  const [customSubject, setCustomSubject] = useState('')
   const [subjectColor, setSubjectColor] = useState(SUBJECT_PRESETS[0].color)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [conflictWarning, setConflictWarning] = useState('')
@@ -40,13 +41,27 @@ export const ScheduleModal: React.FC<ScheduleModalProps> = ({
       setDayOfWeek(initialEntry.day_of_week)
       setStartTime(initialEntry.start_time)
       setEndTime(initialEntry.end_time || '')
-      setSubjectName(initialEntry.subject_name)
-      setSubjectColor(initialEntry.subject_color || SUBJECT_PRESETS[0].color)
+      
+      const existingSubj = (initialEntry.subject_name || '').trim()
+      const matchedPreset = SUBJECT_PRESETS.find(
+        p => p.name.toLowerCase() === existingSubj.toLowerCase()
+      )
+
+      if (matchedPreset) {
+        setSubjectSelect(matchedPreset.name)
+        setCustomSubject('')
+        setSubjectColor(initialEntry.subject_color || matchedPreset.color)
+      } else {
+        setSubjectSelect('Lainnya')
+        setCustomSubject(existingSubj)
+        setSubjectColor(initialEntry.subject_color || DEFAULT_CUSTOM_SUBJECT_COLOR)
+      }
     } else {
       setDayOfWeek(defaultDay)
       setStartTime('07:30')
       setEndTime('09:00')
-      setSubjectName(SUBJECT_PRESETS[0].name)
+      setSubjectSelect(SUBJECT_PRESETS[0].name)
+      setCustomSubject('')
       setSubjectColor(SUBJECT_PRESETS[0].color)
     }
     setError('')
@@ -73,14 +88,14 @@ export const ScheduleModal: React.FC<ScheduleModalProps> = ({
     }
   }, [dayOfWeek, startTime, endTime, existingEntries, initialEntry])
 
-  const handleSubjectChange = (name: string) => {
-    if (name === 'Lainnya') {
-      setSubjectName('')
-      return
+  const handleSubjectSelectChange = (val: string) => {
+    setSubjectSelect(val)
+    if (val === 'Lainnya') {
+      setSubjectColor(DEFAULT_CUSTOM_SUBJECT_COLOR)
+    } else {
+      const preset = SUBJECT_PRESETS.find(p => p.name === val)
+      if (preset) setSubjectColor(preset.color)
     }
-    setSubjectName(name)
-    const preset = SUBJECT_PRESETS.find(p => p.name === name)
-    if (preset) setSubjectColor(preset.color)
   }
 
   const hasConflict = existingEntries.some(
@@ -93,7 +108,9 @@ export const ScheduleModal: React.FC<ScheduleModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!subjectName.trim()) {
+
+    const finalSubjectName = subjectSelect === 'Lainnya' ? customSubject.trim() : subjectSelect
+    if (!finalSubjectName) {
       setError('Nama mata pelajaran wajib diisi')
       return
     }
@@ -110,6 +127,11 @@ export const ScheduleModal: React.FC<ScheduleModalProps> = ({
       return
     }
 
+    const matched = SUBJECT_PRESETS.find(
+      p => p.name.toLowerCase() === finalSubjectName.toLowerCase()
+    )
+    const finalColor = matched ? matched.color : subjectColor || DEFAULT_CUSTOM_SUBJECT_COLOR
+
     setIsSubmitting(true)
     setError('')
 
@@ -118,8 +140,8 @@ export const ScheduleModal: React.FC<ScheduleModalProps> = ({
         day_of_week: dayOfWeek,
         start_time: startTime,
         end_time: endTime || null,
-        subject_name: subjectName.trim(),
-        subject_color: subjectColor,
+        subject_name: matched ? matched.name : finalSubjectName,
+        subject_color: finalColor,
       })
       onClose()
     } catch {
@@ -159,31 +181,32 @@ export const ScheduleModal: React.FC<ScheduleModalProps> = ({
           </label>
           <select
             id="sched-subject"
-            value={SUBJECT_PRESETS.some(subject => subject.name === subjectName) ? subjectName : 'Lainnya'}
-            onChange={e => handleSubjectChange(e.target.value)}
+            value={subjectSelect}
+            onChange={e => handleSubjectSelectChange(e.target.value)}
           >
             {SUBJECT_PRESETS.map(subj => (
               <option key={subj.name} value={subj.name}>
                 {subj.name}
               </option>
             ))}
-            <option value="Lainnya">Lainnya</option>
+            <option value="Lainnya">Lainnya (Ketik Sendiri)</option>
           </select>
         </div>
 
-        {(!SUBJECT_PRESETS.some(subject => subject.name === subjectName) || subjectName === '') && (
+        {subjectSelect === 'Lainnya' && (
           <div className="lz-form-group">
             <label className="lz-label" htmlFor="sched-custom-subject">
-              Nama Mata Pelajaran
+              Nama Mata Pelajaran Kustom <span style={{ color: 'var(--color-action)' }}>*</span>
             </label>
             <input
               id="sched-custom-subject"
               type="text"
-              value={subjectName}
-              onChange={e => setSubjectName(e.target.value)}
-              placeholder="Contoh: Bahasa Daerah"
+              value={customSubject}
+              onChange={e => setCustomSubject(e.target.value)}
+              placeholder="Contoh: Bahasa Daerah, Robotika, dsb."
               maxLength={80}
               required
+              autoFocus
             />
           </div>
         )}

@@ -29,6 +29,8 @@ export interface SubjectPreset {
   color: string
 }
 
+export const DEFAULT_CUSTOM_SUBJECT_COLOR = '#607D8B'
+
 export const SUBJECT_PRESETS: SubjectPreset[] = [
   { name: 'Matematika', color: '#2196F3' },
   { name: 'IPA (Sains)', color: '#32B94B' },
@@ -41,7 +43,6 @@ export const SUBJECT_PRESETS: SubjectPreset[] = [
   { name: 'PJOK', color: '#FF5722' },
   { name: 'Seni Budaya', color: '#9C27B0' },
   { name: 'Prakarya', color: '#795548' },
-  { name: 'Lainnya', color: '#607D8B' },
 ]
 
 export const STICKER_PRESETS: { key: string; label: string; icon: string }[] = [

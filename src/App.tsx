@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { PlannerProvider } from './context/PlannerContext'
+import { FocusTimerProvider } from './context/FocusTimerContext'
 import { ProtectedRoute } from './components/auth/ProtectedRoute'
 import { AppLayout } from './components/layout/AppLayout'
 import type { NavTab } from './components/layout/Sidebar'
@@ -54,9 +55,11 @@ export function App() {
   return (
     <AuthProvider>
       <PlannerProvider>
-        <ProtectedRoute fallback={<AuthPage />}>
-          <MainAppContent />
-        </ProtectedRoute>
+        <FocusTimerProvider>
+          <ProtectedRoute fallback={<AuthPage />}>
+            <MainAppContent />
+          </ProtectedRoute>
+        </FocusTimerProvider>
       </PlannerProvider>
     </AuthProvider>
   )
