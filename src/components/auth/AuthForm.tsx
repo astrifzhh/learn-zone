@@ -158,7 +158,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ mode, onSwitchMode }) => {
         </h2>
         <p style={{ fontSize: '13px', color: 'var(--color-text-muted)', marginTop: '4px' }}>
           {mode === 'login' && 'Atur belajarmu lebih rapi, teratur, dan menyenangkan'}
-          {mode === 'register' && 'Buat akun planner belajarmu dalam hitungan detik'}
+          {mode === 'register' && 'Buat akun Kalender Belajarmu dalam hitungan detik'}
           {mode === 'forgot-password' && 'Masukkan emailmu untuk menerima instruksi pemulihan'}
           {mode === 'update-password' && 'Masukkan password baru yang aman'}
         </p>
@@ -388,12 +388,12 @@ export const AuthForm: React.FC<AuthFormProps> = ({ mode, onSwitchMode }) => {
           {isLoading
             ? 'Memproses...'
             : mode === 'login'
-            ? 'Masuk Sekarang'
-            : mode === 'register'
-            ? 'Daftar Akun'
-            : mode === 'forgot-password'
-            ? 'Kirim Tautan Pemulihan'
-            : 'Simpan Password Baru'}
+              ? 'Masuk Sekarang'
+              : mode === 'register'
+                ? 'Daftar Akun'
+                : mode === 'forgot-password'
+                  ? 'Kirim Tautan Pemulihan'
+                  : 'Simpan Password Baru'}
         </button>
 
         {mode === 'login' && (

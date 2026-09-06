@@ -105,7 +105,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 letterSpacing: '0.3px',
               }}
             >
-              PLANNER BELAJAR
+              Kalender Belajar
             </span>
           </div>
         </div>
